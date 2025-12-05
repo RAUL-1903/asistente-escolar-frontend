@@ -8,13 +8,18 @@ export interface User {
   role: "admin" | "docente" | "estudiante"
   nivel?: string
   grado?: number
+  nombre?: string
 }
 
 export interface Notification {
   _id: string
   text: string
-  type: "tarea" | "quiz"
-  courseId?: string
+  type: "tarea" | "quiz" | "aviso" | "recordatorio"
+  courseId?: {
+    _id: string
+    name: string
+    color: string
+  }
   date: string
   targetLevel: string
   targetGrade: number
@@ -26,7 +31,6 @@ export interface QuizQuestion {
   respuestaCorrectaIndex: number
 }
 
-// API Functions
 export async function login(username: string, password: string): Promise<User> {
   const res = await fetch(`${API_URL}/login`, {
     method: "POST",
@@ -34,42 +38,47 @@ export async function login(username: string, password: string): Promise<User> {
     body: JSON.stringify({ username, password }),
   })
 
-  if (!res.ok) {
-    const error = await res.json()
-    throw new Error(error.error || "Error al iniciar sesión")
+  const data = await res.json()
+
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Error al iniciar sesión")
   }
 
-  return res.json()
+  return data.user
 }
 
 export async function getNotifications(nivel: string, grado: number): Promise<Notification[]> {
   const res = await fetch(`${API_URL}/notifications/${nivel}/${grado}`)
+  const data = await res.json()
 
-  if (!res.ok) {
+  if (!res.ok || !data.success) {
     throw new Error("Error al obtener notificaciones")
   }
 
-  return res.json()
+  return data.notifications
 }
 
-export async function createNotification(data: {
+export async function createNotification(notificationData: {
   text: string
-  type: "tarea" | "quiz"
+  type: "tarea" | "quiz" | "aviso" | "recordatorio"
   targetLevel: string
   targetGrade: number
   courseId?: string
+  createdBy?: string
 }): Promise<Notification> {
   const res = await fetch(`${API_URL}/notifications`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    body: JSON.stringify(notificationData),
   })
 
-  if (!res.ok) {
-    throw new Error("Error al crear notificación")
+  const data = await res.json()
+
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Error al crear notificación")
   }
 
-  return res.json()
+  return data.notification
 }
 
 export async function generateQuiz(topic: string): Promise<QuizQuestion[]> {
@@ -79,10 +88,22 @@ export async function generateQuiz(topic: string): Promise<QuizQuestion[]> {
     body: JSON.stringify({ topic }),
   })
 
-  if (!res.ok) {
-    const error = await res.json()
-    throw new Error(error.error || "Error al generar quiz")
+  const data = await res.json()
+
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Error al generar quiz")
   }
 
-  return res.json()
+  return data.quiz
+}
+
+export async function getCourses() {
+  const res = await fetch(`${API_URL}/courses`)
+  const data = await res.json()
+
+  if (!res.ok || !data.success) {
+    throw new Error("Error al obtener cursos")
+  }
+
+  return data.courses
 }
