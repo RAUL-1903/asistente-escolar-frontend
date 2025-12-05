@@ -102,15 +102,6 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
-
-          <div className="mt-6 rounded-md bg-gray-50 p-4">
-            <p className="text-xs text-gray-500 mb-2">Usuarios de prueba (pass: 123456):</p>
-            <div className="grid grid-cols-3 gap-2 text-xs">
-              <span className="bg-blue-100 px-2 py-1 rounded text-blue-700">admin</span>
-              <span className="bg-green-100 px-2 py-1 rounded text-green-700">profesor1</span>
-              <span className="bg-amber-100 px-2 py-1 rounded text-amber-700">estudiante1</span>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </main>
